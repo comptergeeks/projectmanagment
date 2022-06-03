@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() {
   runApp(const MyApp());
@@ -78,6 +79,15 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             controller: passwordController,
           ),
+          ),
+          Text('Dont have an account?'),
+          TextButton(
+              onPressed: onPressed,
+              child: child
+          ),
+          ElevatedButton(
+              onPressed: onPressed,
+              child: Text('Log In'),
           ),
         ],
       ),
