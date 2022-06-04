@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'viewTasks.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
 }
 
 class MyApp extends StatelessWidget {
@@ -18,6 +22,9 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
       ),
       home: const MyHomePage(title: 'The Easy Way To Project Manage'),
+      routes: {
+        'ViewTasks': (_) => ViewTasks(),
+      },
     );
   }
 }
@@ -31,7 +38,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   @override
   Widget build(BuildContext context) {
     TextEditingController emailController = TextEditingController();
@@ -47,51 +53,83 @@ class _MyHomePageState extends State<MyHomePage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text('Log In or Sign Up'),
-    ),
-    body: Center (
-      child: Column(
-        children: [
-          const SizedBox(height: 50),
-          Text('Welcome', style: TextStyle(fontWeight: FontWeight.bold,fontSize: 32,),
-          ),
-          Padding(padding: EdgeInsets.fromLTRB(20, 30, 20, 10),
-          child: TextFormField(
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderSide: const BorderSide(width: 3, color: Colors.blue),
-                borderRadius: BorderRadius.circular(15),
+      ),
+      body: Center(
+        child: Column(
+          children: [
+            const SizedBox(height: 50),
+            Text(
+              'Welcome',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 32,
               ),
-              hintText: 'Enter your email',
-              prefixIcon: Icon(Icons.email),
             ),
-            controller: emailController,
-          ),
-            ),
-          Padding(padding: EdgeInsets.fromLTRB(20, 30, 20, 10),
-          child: TextFormField(
-            decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderSide: const BorderSide(width: 3, color: Colors.blue),
-                  borderRadius: BorderRadius.circular(15),
+            Padding(
+              padding: EdgeInsets.fromLTRB(20, 30, 20, 10),
+              child: TextFormField(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderSide: const BorderSide(width: 3, color: Colors.blue),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  hintText: 'Enter your email',
+                  prefixIcon: Icon(Icons.email),
                 ),
-                hintText: 'Enter your password',
-                prefixIcon: Icon(Icons.lock),
+                controller: emailController,
+              ),
             ),
-            controller: passwordController,
-          ),
-          ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(20, 30, 20, 10),
+              child: TextFormField(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderSide: const BorderSide(width: 3, color: Colors.blue),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  hintText: 'Enter your password',
+                  prefixIcon: Icon(Icons.lock),
+                ),
+                controller: passwordController,
+              ),
+            ),
+            /*
           Text('Dont have an account?'),
           TextButton(
               onPressed: onPressed,
               child: child
           ),
-          ElevatedButton(
-              onPressed: onPressed,
-              child: Text('Log In'),
-          ),
-        ],
+
+           */
+            ElevatedButton(
+                child: Text('Log In'),
+                onPressed: () async {
+                  FirebaseAuth.instance
+                      .signInWithEmailAndPassword(
+                    email: emailController.text,
+                    password: passwordController.text,
+                  )
+                      .then((value) {
+                    Navigator.of(context).pushNamed('ViewTasks');
+                  }).onError((error, stackTrace) {
+                    showDialog<String>(
+                      context: context,
+                      builder: (BuildContext context) => AlertDialog(
+                        title: const Text('Error'),
+                        content: Text(error.toString()),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, 'OK'),
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      ),
+                    );
+                  });
+                }),
+          ],
+        ),
       ),
-    ),
     );
   }
 }
